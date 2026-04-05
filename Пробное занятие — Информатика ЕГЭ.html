@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пробное занятие — Информатика ЕГЭ</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a24;
+    --surface2: #22222f;
+    --accent1: #7c6cff;
+    --accent2: #ff6b6b;
+    --accent3: #00d4aa;
+    --accent4: #ffd166;
+    --text: #f0f0f8;
+    --muted: #7070a0;
+    --border: #2e2e45;
+    --card-r: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow-x: hidden; }
+
+  .board {
+    min-height: 100vh; padding: 48px 32px 80px; position: relative;
+    background:
+      radial-gradient(ellipse 900px 600px at 20% 10%, rgba(124,108,255,.07) 0%, transparent 70%),
+      radial-gradient(ellipse 700px 500px at 80% 80%, rgba(0,212,170,.05) 0%, transparent 70%),
+      var(--bg);
+  }
+  .board::before {
+    content:''; position:fixed; inset:0;
+    background-image: radial-gradient(circle, rgba(112,112,160,.25) 1px, transparent 1px);
+    background-size: 28px 28px; pointer-events:none; z-index:0;
+  }
+  .board > * { position:relative; z-index:1; }
+  .flow { display:flex; flex-direction:column; gap:0; max-width:1100px; margin:0 auto; }
+
+  .section-label {
+    font-family:'Unbounded',sans-serif; font-size:10px; font-weight:700;
+    letter-spacing:3px; text-transform:uppercase; color:var(--muted);
+    margin-bottom:20px; display:flex; align-items:center; gap:12px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--card-r); padding:24px 28px; position:relative; overflow:hidden;
+  }
+  .card::before {
+    content:''; position:absolute; top:0; left:0; right:0;
+    height:3px; background:var(--accent1); border-radius:3px 3px 0 0;
+  }
+  .card.green::before  { background:var(--accent3); }
+  .card.yellow::before { background:var(--accent4); }
+
+  .arrow-down { display:flex; justify-content:center; align-items:center; height:56px; }
+  .arrow-down svg { opacity:.5; }
+
+  .header-block {
+    background:linear-gradient(135deg, #1e1b3a 0%, #16202a 100%);
+    border:1px solid var(--accent1); border-radius:20px; padding:36px 40px;
+    display:flex; align-items:center; gap:32px;
+    box-shadow:0 0 60px rgba(124,108,255,.15);
+  }
+  .header-block .emoji { font-size:64px; line-height:1; }
+  .header-block h1 {
+    font-family:'Unbounded',sans-serif; font-size:clamp(22px,3vw,36px);
+    font-weight:900; line-height:1.15;
+    background:linear-gradient(90deg, var(--accent1), var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .header-block p { color:var(--muted); margin-top:8px; font-size:15px; line-height:1.6; }
+  .badge-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .badge {
+    font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+    padding:4px 12px; border-radius:20px; border:1px solid;
+  }
+  .badge.purple { color:var(--accent1); border-color:var(--accent1); background:rgba(124,108,255,.1); }
+  .badge.green  { color:var(--accent3); border-color:var(--accent3); background:rgba(0,212,170,.1); }
+  .badge.yellow { color:var(--accent4); border-color:var(--accent4); background:rgba(255,209,102,.1); }
+
+  .hook-block {
+    background:linear-gradient(135deg, #1f1a35, #1a1f35);
+    border:1px solid rgba(124,108,255,.3); border-radius:16px; padding:28px 32px;
+  }
+  .hook-q {
+    font-family:'Unbounded',sans-serif; font-size:clamp(18px,2.5vw,28px);
+    font-weight:700; line-height:1.3;
+  }
+  .hook-q span { color:var(--accent1); }
+
+  .two-col   { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+  @media (max-width:800px) { .two-col,.three-col { grid-template-columns:1fr; } }
+
+  .tree-container {
+    background:var(--surface2); border-radius:12px; padding:20px;
+    display:flex; justify-content:center; align-items:center; min-height:240px;
+  }
+
+  .formula-box {
+    background:linear-gradient(135deg, rgba(124,108,255,.15), rgba(0,212,170,.08));
+    border:2px solid var(--accent1); border-radius:12px; padding:20px 24px; text-align:center;
+  }
+  .formula {
+    font-family:'JetBrains Mono',monospace; font-size:clamp(24px,4vw,42px);
+    font-weight:700; color:var(--accent1); letter-spacing:-1px;
+  }
+  .formula-desc { color:var(--muted); font-size:13px; margin-top:8px; line-height:1.5; }
+
+  .quote {
+    font-size:15px; color:var(--accent3); line-height:1.7;
+    padding:16px 20px; background:rgba(0,212,170,.06);
+    border-left:3px solid var(--accent3); border-radius:0 8px 8px 0;
+    font-style:italic; margin:12px 0;
+  }
+  .quote.purple { color:var(--accent1); background:rgba(124,108,255,.08); border-left-color:var(--accent1); }
+  .quote.yellow { color:var(--accent4); background:rgba(255,209,102,.06); border-left-color:var(--accent4); }
+
+  .card-title {
+    font-family:'Unbounded',sans-serif; font-size:13px; font-weight:700;
+    letter-spacing:.5px; margin-bottom:16px; display:flex; align-items:center; gap:10px;
+  }
+  .card-title .icon { font-size:18px; }
+
+  .tag {
+    display:inline-block; font-size:11px; font-weight:700; padding:3px 10px;
+    border-radius:20px; background:rgba(124,108,255,.15); color:var(--accent1);
+    letter-spacing:.5px; margin-bottom:12px;
+  }
+  .tag.yellow { background:rgba(255,209,102,.12); color:var(--accent4); }
+  .tag.green  { background:rgba(0,212,170,.12);   color:var(--accent3); }
+  .tag.red    { background:rgba(255,107,107,.12); color:var(--accent2); }
+
+  .wow-moment {
+    border:2px dashed var(--accent1); border-radius:14px;
+    padding:20px 24px; background:rgba(124,108,255,.04);
+  }
+  .wow-moment-label {
+    font-size:10px; text-transform:uppercase; letter-spacing:3px;
+    color:var(--accent1); font-weight:700; margin-bottom:10px;
+  }
+
+  .pattern-count { background:var(--surface2); border-radius:10px; padding:16px 20px; }
+  .count-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 0; border-bottom:1px solid var(--border);
+  }
+  .count-row:last-child { border-bottom:none; }
+  .count-row .n { color:var(--muted); font-family:'Manrope',sans-serif; font-size:13px; }
+  .count-row .v { color:var(--accent4); font-weight:700; font-family:'JetBrains Mono',monospace; font-size:14px; }
+  .count-row .p { color:var(--accent3); font-family:'JetBrains Mono',monospace; font-size:14px; }
+
+  .task-box {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:10px; padding:16px 20px; font-size:14px; line-height:1.7;
+  }
+  .task-box .task-label {
+    font-size:10px; text-transform:uppercase; letter-spacing:2px;
+    color:var(--accent4); font-weight:700; margin-bottom:8px;
+  }
+
+  .answer-box {
+    background:linear-gradient(135deg, rgba(0,212,170,.12), rgba(0,212,170,.04));
+    border:2px solid var(--accent3); border-radius:10px;
+    padding:14px 20px; display:flex; align-items:center; gap:16px; margin-top:16px;
+  }
+  .answer-box .ans-label { font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--muted); }
+  .answer-box .ans-val { font-family:'Unbounded',sans-serif; font-size:28px; font-weight:900; color:var(--accent3); }
+  .answer-box .ans-desc { font-size:13px; color:var(--muted); }
+
+  .hype-header {
+    background:linear-gradient(135deg, #2a1f10, #1a1520);
+    border:1px solid rgba(255,209,102,.3); border-radius:20px; padding:28px 32px;
+    box-shadow:0 0 60px rgba(255,209,102,.08);
+  }
+  .hype-header h2 {
+    font-family:'Unbounded',sans-serif; font-size:clamp(18px,2.5vw,26px);
+    font-weight:900; color:var(--accent4); line-height:1.2;
+  }
+
+  .compare { display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:center; }
+  .compare-side { background:var(--surface2); border-radius:12px; padding:20px; text-align:center; border:1px solid var(--border); }
+  .compare-vs { font-family:'Unbounded',sans-serif; font-size:20px; font-weight:900; color:var(--accent2); text-align:center; }
+  .compare-label { font-size:11px; text-transform:uppercase; letter-spacing:2px; color:var(--muted); margin-bottom:8px; }
+
+  .pin-table { width:100%; border-collapse:collapse; font-size:14px; margin-top:8px; }
+  .pin-table th {
+    text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:2px;
+    color:var(--muted); padding:10px 14px; border-bottom:2px solid var(--border); font-weight:700;
+  }
+  .pin-table td {
+    padding:14px; border-bottom:1px solid var(--border);
+    vertical-align:middle;
+  }
+  .pin-table tr:last-child td { border-bottom:none; }
+  .pin-table .danger { color:var(--accent2); font-weight:700; }
+  .pin-table .safe   { color:var(--accent3); font-weight:700; }
+  .pin-table .medium { color:var(--accent4); font-weight:700; }
+  .pin-table td.mono { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--accent1); }
+  .pin-table td.muted { color:var(--muted); font-size:13px; }
+  .pin-table td.blank {
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    color:var(--border); border:1px dashed var(--border); border-radius:6px;
+    text-align:center; letter-spacing:1px; padding:10px 14px;
+  }
+
+  .outro {
+    background:linear-gradient(135deg, #16132a, #0f1a20);
+    border:1px solid var(--border); border-radius:20px; padding:36px 40px;
+    text-align:center; box-shadow:0 0 80px rgba(124,108,255,.1);
+  }
+  .outro h2 {
+    font-family:'Unbounded',sans-serif; font-size:clamp(18px,2.5vw,26px); font-weight:900;
+    background:linear-gradient(90deg, var(--accent1), var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    margin-bottom:16px;
+  }
+  .outro p { color:var(--muted); font-size:15px; max-width:500px; margin:0 auto 24px; line-height:1.7; }
+  .offer-btn {
+    display:inline-block;
+    background:linear-gradient(135deg, var(--accent1), #5a4fcf); color:white;
+    font-family:'Unbounded',sans-serif; font-size:13px; font-weight:700;
+    padding:14px 32px; border-radius:50px; letter-spacing:.5px;
+    box-shadow:0 8px 32px rgba(124,108,255,.35);
+  }
+  .gap { height:24px; }
+
+  .site-link {
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(0,212,170,.08); border:1px solid rgba(0,212,170,.3);
+    border-radius:8px; padding:10px 16px; text-decoration:none;
+    color:var(--accent3); font-size:14px; font-weight:600; margin-top:4px;
+  }
+
+  /* ── БИТ БЛОК ── */
+  .bit-block {
+    background:var(--surface2); border-radius:14px; padding:24px 28px;
+    border:1px solid var(--border);
+  }
+  .bulb-row { display:flex; align-items:flex-start; gap:48px; justify-content:center; flex-wrap:wrap; }
+  .bulb-wrap { text-align:center; }
+  .bulb {
+    width:80px; height:80px; border-radius:50%; margin:0 auto 10px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Unbounded',sans-serif; font-size:32px; font-weight:900;
+  }
+  .bulb.off { background:var(--surface); border:2px solid var(--border); color:var(--muted); }
+  .bulb.on  { background:rgba(255,209,102,.15); border:2px solid var(--accent4); color:var(--accent4);
+    box-shadow:0 0 32px rgba(255,209,102,.2); }
+  .bulb-label { font-size:13px; color:var(--muted); line-height:1.6; }
+  .bulb-or { font-family:'Unbounded',sans-serif; font-size:18px; color:var(--muted); margin-top:28px; }
+
+  .byte-row { display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-top:20px; justify-content:center; }
+  .bit-cell {
+    width:36px; height:36px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700;
+  }
+  .bit-cell.z { background:var(--surface); border:1px solid var(--border); color:var(--muted); }
+  .bit-cell.o { background:rgba(255,209,102,.12); border:1px solid var(--accent4); color:var(--accent4); }
+  .byte-label { font-size:13px; color:var(--muted); margin-left:12px; }
+</style>
+</head>
+<body>
+<div class="board">
+<div class="flow">
+
+  <!-- HEADER -->
+  <div class="header-block">
+    <div class="emoji">🧠</div>
+    <div>
+      <h1>Пробное занятие<br>Информатика ЕГЭ</h1>
+      <p>Одна идея → три применения. Выводим формулу сами, решаем задание 7, взламываем пароли.</p>
+      <div class="badge-row">
+        <span class="badge purple">ЕГЭ · Задание 7</span>
+        <span class="badge green">~30 минут</span>
+        <span class="badge yellow">Кодирование + Теория вероятности</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-down"><svg width="24" height="40" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="30" stroke="#7c6cff" stroke-width="2"/><path d="M4 22 L12 32 L20 22" stroke="#7c6cff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+
+  <!-- 01 КРЮЧОК -->
+  <div class="section-label">01 — Крючок · 2 минуты</div>
+  <div class="hook-block">
+    <div class="hook-q">
+      Ты когда-нибудь тыкал ответ <span>наугад</span> на тесте?<br>
+      Какой реально шанс угадать <span>всё</span>?
+    </div>
+  </div>
+
+  <div class="arrow-down"><svg width="24" height="40" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="30" stroke="#7c6cff" stroke-width="2"/><path d="M4 22 L12 32 L20 22" stroke="#7c6cff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+
+  <!-- 02 ДЕРЕВО -->
+  <div class="section-label">02 — Дерево вероятностей · 8 минут</div>
+  <div class="card purple">
+    <div class="card-title"><span class="icon">🌳</span> Теория вероятности</div>
+    <div class="two-col" style="margin-bottom:20px">
+      <div class="tree-container">
+        <svg viewBox="0 0 340 230" xmlns="http://www.w3.org/2000/svg" style="max-width:100%">
+          <circle cx="170" cy="20" r="12" fill="#7c6cff"/>
+          <text x="170" y="25" text-anchor="middle" fill="white" font-size="11" font-family="JetBrains Mono" font-weight="700">?</text>
+          <line x1="170" y1="32" x2="80" y2="78" stroke="#7c6cff" stroke-width="1.5" opacity=".6"/>
+          <line x1="170" y1="32" x2="260" y2="78" stroke="#7c6cff" stroke-width="1.5" opacity=".6"/>
+          <circle cx="80" cy="90" r="14" fill="#22222f" stroke="#7c6cff" stroke-width="1.5"/>
+          <text x="80" y="94" text-anchor="middle" fill="#7c6cff" font-size="10" font-family="JetBrains Mono">ДА</text>
+          <circle cx="260" cy="90" r="14" fill="#22222f" stroke="#7c6cff" stroke-width="1.5"/>
+          <text x="260" y="94" text-anchor="middle" fill="#7c6cff" font-size="10" font-family="JetBrains Mono">НЕТ</text>
+          <line x1="80" y1="104" x2="36" y2="148" stroke="#00d4aa" stroke-width="1.5" opacity=".6"/>
+          <line x1="80" y1="104" x2="116" y2="148" stroke="#00d4aa" stroke-width="1.5" opacity=".6"/>
+          <line x1="260" y1="104" x2="224" y2="148" stroke="#00d4aa" stroke-width="1.5" opacity=".6"/>
+          <line x1="260" y1="104" x2="304" y2="148" stroke="#00d4aa" stroke-width="1.5" opacity=".6"/>
+          <circle cx="36"  cy="160" r="12" fill="#22222f" stroke="#00d4aa" stroke-width="1.5"/>
+          <text x="36"  y="164" text-anchor="middle" fill="#00d4aa" font-size="9" font-family="JetBrains Mono">Д</text>
+          <circle cx="116" cy="160" r="12" fill="#22222f" stroke="#00d4aa" stroke-width="1.5"/>
+          <text x="116" y="164" text-anchor="middle" fill="#00d4aa" font-size="9" font-family="JetBrains Mono">Н</text>
+          <circle cx="224" cy="160" r="12" fill="#22222f" stroke="#00d4aa" stroke-width="1.5"/>
+          <text x="224" y="164" text-anchor="middle" fill="#00d4aa" font-size="9" font-family="JetBrains Mono">Д</text>
+          <circle cx="304" cy="160" r="12" fill="#22222f" stroke="#00d4aa" stroke-width="1.5"/>
+          <text x="304" y="164" text-anchor="middle" fill="#00d4aa" font-size="9" font-family="JetBrains Mono">Н</text>
+          <line x1="36"  y1="172" x2="18"  y2="205" stroke="#ffd166" stroke-width="1" opacity=".5"/>
+          <line x1="36"  y1="172" x2="54"  y2="205" stroke="#ffd166" stroke-width="1" opacity=".5"/>
+          <line x1="116" y1="172" x2="98"  y2="205" stroke="#ffd166" stroke-width="1" opacity=".5"/>
+          <line x1="116" y1="172" x2="134" y2="205" stroke="#ffd166" stroke-width="1" opacity=".5"/>
+          <line x1="224" y1="172" x2="206" y2="205" stroke="#ffd166" stroke-width="1" opacity=".5"/>
+          <line x1="224" y1="172" x2="242" y2="205" stroke="#ffd166" stroke-width="1" opacity=".5"/>
+          <line x1="304" y1="172" x2="286" y2="205" stroke="#ffd166" stroke-width="1" opacity=".5"/>
+          <line x1="304" y1="172" x2="322" y2="205" stroke="#ffd166" stroke-width="1" opacity=".5"/>
+          <circle cx="18"  cy="212" r="8" fill="#ffd166" opacity=".8"/>
+          <circle cx="54"  cy="212" r="8" fill="#ffd166" opacity=".8"/>
+          <circle cx="98"  cy="212" r="8" fill="#ffd166" opacity=".8"/>
+          <circle cx="134" cy="212" r="8" fill="#ffd166" opacity=".8"/>
+          <circle cx="206" cy="212" r="8" fill="#ffd166" opacity=".8"/>
+          <circle cx="242" cy="212" r="8" fill="#ffd166" opacity=".8"/>
+          <circle cx="286" cy="212" r="8" fill="#ffd166" opacity=".8"/>
+          <circle cx="322" cy="212" r="8" fill="#ffd166" opacity=".8"/>
+          <text x="170" y="228" text-anchor="middle" fill="#ffd166" font-size="11" font-family="JetBrains Mono" font-weight="700">8 листиков = 2³</text>
+          <text x="334" y="24"  fill="#7070a0" font-size="10" font-family="Manrope">n=1</text>
+          <text x="334" y="94"  fill="#7070a0" font-size="10" font-family="Manrope">n=2</text>
+          <text x="334" y="164" fill="#7070a0" font-size="10" font-family="Manrope">n=3</text>
+        </svg>
+      </div>
+
+      <div>
+        <div class="pattern-count" style="margin-bottom:16px">
+          <div class="count-row" style="border-bottom:2px solid var(--accent1); padding-bottom:10px; margin-bottom:4px">
+            <span class="n" style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px">Кол-во вопросов</span>
+            <span class="v" style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted)">Листиков</span>
+            <span class="p" style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted)">Вероятность</span>
+          </div>
+          <div class="count-row">
+            <span class="n">n = 1</span>
+            <span class="v">2</span>
+            <span class="p">1/2</span>
+          </div>
+          <div class="count-row">
+            <span class="n">n = 2</span>
+            <span class="v">4</span>
+            <span class="p">1/4</span>
+          </div>
+          <div class="count-row">
+            <span class="n">n = 3</span>
+            <span class="v">8</span>
+            <span class="p">1/8</span>
+          </div>
+          <div class="quote purple" style="margin:12px 0; font-size:13px; border-radius:6px">
+            «Смотри на столбик. 2, 4, 8... что происходит каждый раз?»
+          </div>
+          <div class="count-row" style="opacity:.4">
+            <span class="n">n = 4</span>
+            <span class="v">?</span>
+            <span class="p">?</span>
+          </div>
+          <div class="count-row" style="opacity:.4">
+            <span class="n">n = 10</span>
+            <span class="v">?</span>
+            <span class="p">?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula">N = 2<sup style="font-size:.6em">n</sup></div>
+      <div class="formula-desc">N — количество вариантов &nbsp;|&nbsp; n — количество вопросов (или битов)</div>
+    </div>
+    <div class="quote" style="margin-top:16px">
+      «Это не формула из учебника которую надо зубрить. Это то, что ты только что нарисовал руками.»
+    </div>
+  </div>
+
+  <div class="arrow-down"><svg width="24" height="40" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="30" stroke="#7c6cff" stroke-width="2"/><path d="M4 22 L12 32 L20 22" stroke="#7c6cff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+
+  <!-- 03 БИТ -->
+  <div class="section-label">03 — Что такое бит · 2 минуты</div>
+  <div class="bit-block">
+    <div class="bulb-row">
+      <div class="bulb-wrap">
+        <div class="bulb off">0</div>
+        <div class="bulb-label">выключено<br>нет сигнала</div>
+      </div>
+      <div class="bulb-or">или</div>
+      <div class="bulb-wrap">
+        <div class="bulb on">1</div>
+        <div class="bulb-label">включено<br>есть сигнал</div>
+      </div>
+    </div>
+    <div class="byte-row">
+      <div class="bit-cell z">0</div>
+      <div class="bit-cell o">1</div>
+      <div class="bit-cell o">1</div>
+      <div class="bit-cell z">0</div>
+      <div class="bit-cell z">0</div>
+      <div class="bit-cell o">1</div>
+      <div class="bit-cell o">1</div>
+      <div class="bit-cell z">0</div>
+      <span class="byte-label">= 1 байт = 8 бит = буква «A»</span>
+    </div>
+  </div>
+
+  <div class="arrow-down"><svg width="24" height="40" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="30" stroke="#7c6cff" stroke-width="2"/><path d="M4 22 L12 32 L20 22" stroke="#7c6cff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+
+  <!-- 04 ВАУ-МОМЕНТ -->
+  <div class="section-label">04 — Связь с кодированием · 3 минуты</div>
+  <div class="wow-moment">
+    <div class="wow-moment-label">⚡ Ключевой момент</div>
+    <div class="quote yellow" style="margin-bottom:20px">
+      «Стоп. Бит — это тоже 0 или 1. Два варианта. 4 бита = 4 вопроса да/нет. Та же самая формула.<br>
+      Теория вероятности и кодирование — это одно и то же, просто в разных костюмах.»
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="card-title" style="font-size:14px; margin-bottom:10px">Теория вероятности</div>
+        <div class="formula-box" style="padding:16px">
+          <div class="formula" style="font-size:28px">2⁴ = 16</div>
+          <div class="formula-desc">вариантов угадать тест из 4 вопросов</div>
+        </div>
+      </div>
+      <div>
+        <div class="card-title" style="font-size:14px; margin-bottom:10px">Кодирование (Задание 7)</div>
+        <div class="formula-box" style="padding:16px; border-color:var(--accent3)">
+          <div class="formula" style="font-size:28px; color:var(--accent3)">2⁴ = 16</div>
+          <div class="formula-desc">цветов кодируется 4 битами</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-down"><svg width="24" height="40" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="30" stroke="#00d4aa" stroke-width="2"/><path d="M4 22 L12 32 L20 22" stroke="#00d4aa" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+
+  <!-- 05 ЗАДАНИЕ 7 ЕГЭ -->
+  <div class="section-label">05 — Задание 7 ЕГЭ · 7 минут</div>
+  <div class="card green">
+    <div class="card-title"><span class="icon">📸</span> Реальная задача</div>
+
+    <div class="task-box" style="margin-bottom:24px">
+      <div class="task-label">Условие</div>
+      Растровое изображение размером <strong>268×256 пикселей</strong> сохранено без сжатия.
+      В палитре используется <strong>256 цветов</strong>.
+      Определите размер файла в <strong>Кбайт</strong>.
+    </div>
+
+    <div class="three-col">
+      <div style="background:var(--surface2); border-radius:12px; padding:20px;">
+        <div class="tag green" style="margin-bottom:12px">Шаг 1 — Глубина цвета</div>
+        <div style="font-size:15px; line-height:1.9; color:var(--text); margin-bottom:16px">
+          256 цветов — сколько бит нужно на один пиксель?
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:20px; color:var(--accent1); text-align:center; margin-bottom:16px">
+          2<sup>?</sup> = 256
+        </div>
+        <div class="formula-box" style="padding:12px">
+          <div class="formula" style="font-size:22px">2⁸ = 256</div>
+          <div class="formula-desc">→ 8 бит на пиксель</div>
+        </div>
+        <div style="color:var(--muted); font-size:11px; margin-top:10px; border-top:1px solid var(--border); padding-top:8px">
+          та же N = 2ⁿ — ищем n → n = 8
+        </div>
+      </div>
+
+      <div style="background:var(--surface2); border-radius:12px; padding:20px;">
+        <div class="tag green" style="margin-bottom:12px">Шаг 2 — Вес в битах</div>
+        <div style="font-size:15px; line-height:1.9; color:var(--text); margin-bottom:16px">
+          Сколько всего пикселей? Умножаем на 8.
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:16px; color:var(--accent1); text-align:center; line-height:2.2; margin-bottom:16px">
+          268 × 256 × 8
+        </div>
+        <div class="formula-box" style="padding:12px">
+          <div class="formula" style="font-size:22px; color:var(--accent3)">548 864 бит</div>
+        </div>
+        <div style="color:var(--muted); font-size:11px; margin-top:10px; border-top:1px solid var(--border); padding-top:8px">
+          268 × 256 = 68 608 пкс × 8 бит
+        </div>
+      </div>
+
+      <div style="background:var(--surface2); border-radius:12px; padding:20px;">
+        <div class="tag green" style="margin-bottom:12px">Шаг 3 — В Кбайт</div>
+        <div style="font-size:15px; line-height:1.9; color:var(--text); margin-bottom:16px">
+          Делим дважды: на 8, потом на 1024.
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--accent1); text-align:center; line-height:2.4; margin-bottom:8px">
+          ÷ 8 → байт<br>÷ 1024 → Кбайт
+        </div>
+        <div class="answer-box" style="margin-top:0">
+          <div>
+            <div class="ans-label">Ответ</div>
+            <div class="ans-val">67</div>
+          </div>
+          <div class="ans-desc">Кбайт</div>
+        </div>
+        <div style="color:var(--muted); font-size:11px; margin-top:10px; border-top:1px solid var(--border); padding-top:8px">
+          548 864 ÷ 8 = 68 608 байт ÷ 1024 = 67 Кбайт
+        </div>
+      </div>
+    </div>
+
+    <div class="quote" style="margin-top:20px">
+      «Всё решение — найти n из 2ⁿ = 256 и потом три раза перемножить. Больше ничего.»
+    </div>
+  </div>
+
+  <div class="arrow-down"><svg width="24" height="40" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="30" stroke="#ffd166" stroke-width="2"/><path d="M4 22 L12 32 L20 22" stroke="#ffd166" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+
+  <!-- 06 ХАЙП — ПАРОЛИ -->
+  <div class="section-label">06 — Пароли · 8 минут</div>
+  <div class="hype-header">
+    <h2>🔐 Твой пароль — насколько он реально надёжный?</h2>
+  </div>
+
+  <div class="gap"></div>
+
+  <!-- A vs B -->
+  <div class="card yellow">
+    <div class="card-title"><span class="icon">🎯</span> Угадай кто сильнее</div>
+    <div class="quote yellow" style="font-size:16px; margin-bottom:20px">
+      «Как думаешь — какой пароль надёжнее?»
+    </div>
+
+    <div class="compare">
+      <div class="compare-side">
+        <div class="compare-label">Вариант А</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:18px; color:var(--text); margin:10px 0; letter-spacing:2px">123456789012</div>
+        <div style="font-size:13px; color:var(--muted)">12 цифр подряд</div>
+        <div style="color:var(--muted); font-size:11px; margin-top:16px; border-top:1px solid var(--border); padding-top:8px; font-family:'JetBrains Mono',monospace">
+          10¹² = 1 000 000 000 000
+        </div>
+      </div>
+      <div class="compare-vs">VS</div>
+      <div class="compare-side">
+        <div class="compare-label">Вариант Б</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:18px; color:var(--text); margin:10px 0; letter-spacing:2px">aK9#mQ</div>
+        <div style="font-size:13px; color:var(--muted)">6 символов (буквы+цифры+знаки)</div>
+        <div style="color:var(--muted); font-size:11px; margin-top:16px; border-top:1px solid var(--border); padding-top:8px; font-family:'JetBrains Mono',monospace">
+          72⁶ = 139 000 000 000
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px; padding:16px 20px; border-left:3px solid var(--accent4); background:rgba(255,209,102,.06); border-radius:0 8px 8px 0">
+      <div style="font-size:15px; color:var(--accent4); font-style:italic">«12 цифр подряд — надёжнее, чем красивый сложный пароль из 6 символов?»</div>
+      <div style="color:var(--text); margin-top:10px; font-size:14px"><strong style="color:var(--accent4)">Длина бьёт сложность. Всегда.</strong> Вот почему — математика, не паранойя.</div>
+    </div>
+  </div>
+
+  <div class="gap"></div>
+
+  <!-- ТАБЛИЦА ВЗЛОМА — это и есть твист -->
+  <div class="card">
+    <div class="card-title"><span class="icon">⏱</span> Считаем вместе — сколько нужно времени?</div>
+
+    <div style="background:var(--surface2); border-radius:10px; padding:14px 18px; margin-bottom:24px; border-left:3px solid var(--accent2)">
+      <div style="font-size:14px; color:var(--text); line-height:1.8">
+        Современный игровой компьютер перебирает
+        <strong style="color:var(--accent2)">10 000 000 000 паролей в секунду</strong> (10¹⁰).<br>
+        <span style="color:var(--muted); font-size:13px">Формула: Вариантов ÷ 10¹⁰ = секунды</span>
+      </div>
+    </div>
+
+    <table class="pin-table">
+      <thead>
+        <tr>
+          <th>Пароль</th>
+          <th>Вариантов</th>
+          <th>Считаем</th>
+          <th>Время взлома</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="muted">PIN: 4 цифры</td>
+          <td class="mono">10⁴ = 10 000</td>
+          <td class="blank">10 000 ÷ 10¹⁰ = ?</td>
+          <td class="danger">0.000001 сек 💀</td>
+        </tr>
+        <tr>
+          <td class="muted">6 символов (буквы+цифры+знаки)</td>
+          <td class="mono">72⁶ ≈ 139 млрд</td>
+          <td class="blank">139×10⁹ ÷ 10¹⁰ = ?</td>
+          <td class="medium">14 секунд ⚠️</td>
+        </tr>
+        <tr>
+          <td class="muted">12 цифр подряд</td>
+          <td class="mono">10¹² = 1 трлн</td>
+          <td class="blank">10¹² ÷ 10¹⁰ = ?</td>
+          <td class="medium">100 секунд ⚠️</td>
+        </tr>
+        <tr>
+          <td class="muted">8 символов (72 варианта)</td>
+          <td class="mono">72⁸ ≈ 722 трлн</td>
+          <td class="blank">722×10¹² ÷ 10¹⁰ = ?</td>
+          <td class="safe">~20 часов ✅</td>
+        </tr>
+        <tr>
+          <td class="muted">три случайных слова</td>
+          <td class="mono">33¹⁸ ≈ 10²⁷</td>
+          <td class="blank">10²⁷ ÷ 10¹⁰ = ?</td>
+          <td class="safe">миллиарды лет 🛡</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:28px; padding:20px; background:var(--surface2); border-radius:12px; border:1px solid rgba(0,212,170,.2)">
+      <div style="font-size:14px; color:var(--text); line-height:1.8; margin-bottom:16px">
+        После урока — зайди в телефон и проверь свои пароли на этом сайте.
+        Если что-то слабое — замени тремя случайными словами подряд.
+      </div>
+      <a href="https://www.security.org/how-secure-is-my-password/" target="_blank" class="site-link">
+        🔗 security.org — How Secure Is My Password?
+      </a>
+    </div>
+  </div>
+
+  <div class="arrow-down"><svg width="24" height="40" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="30" stroke="#7c6cff" stroke-width="2"/><path d="M4 22 L12 32 L20 22" stroke="#7c6cff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+
+  <!-- ИТОГ -->
+  <div class="section-label">07 — Итог и оффер</div>
+  <div class="outro">
+    <div style="font-size:40px; margin-bottom:16px">🎯</div>
+    <h2>Одна идея — три применения</h2>
+    <div class="three-col" style="text-align:left; margin-bottom:28px; max-width:700px; margin-left:auto; margin-right:auto;">
+      <div style="background:var(--surface2); border-radius:12px; padding:16px; border:1px solid var(--border)">
+        <div class="tag" style="margin-bottom:8px">Теория вероятности</div>
+        <div style="font-size:13px; color:var(--muted); line-height:1.6">Нарисовали дерево, сами вывели N = 2ⁿ</div>
+      </div>
+      <div style="background:var(--surface2); border-radius:12px; padding:16px; border:1px solid var(--border)">
+        <div class="tag green" style="margin-bottom:8px">ЕГЭ Задание 7</div>
+        <div style="font-size:13px; color:var(--muted); line-height:1.6">Решили реальную задачу через ту же формулу → 67 Кбайт</div>
+      </div>
+      <div style="background:var(--surface2); border-radius:12px; padding:16px; border:1px solid var(--border)">
+        <div class="tag yellow" style="margin-bottom:8px">Реальная жизнь</div>
+        <div style="font-size:13px; color:var(--muted); line-height:1.6">Посчитали взлом паролей — знаешь что делать со своими</div>
+      </div>
+    </div>
+    <p>В ЕГЭ таких тем ещё 7–8. Хочешь разобрать остальные так же — без зубрёжки, через смысл?</p>
+    <div class="offer-btn">Хочу продолжить →</div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>
